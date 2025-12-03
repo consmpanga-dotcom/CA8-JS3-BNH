@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="El Fuego">
+  <title>Bear Ninja Hunter - CA8</title>
+  <style>
+    body{font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial; background: linear-gradient(180deg,#f7f9fc,#e6f0ff); color:#073b4c; padding:2rem}
+    header{max-width:700px;margin:0 auto 1.5rem; text-align:center}
+    main{max-width:700px;margin:0 auto;background:white;padding:1.25rem;border-radius:12px;box-shadow:0 8px 24px rgba(10,10,10,0.06)}
+    h1{font-size:1.6rem;margin:0 0 .25rem}
+    .results{margin-top:1rem;padding:.75rem;border-radius:8px;background:#f1f8ff}
+    .label{font-weight:700}
+    footer{max-width:700px;margin:1rem auto;text-align:center;color:#667085}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Bear Ninja Hunter</h1>
+    <p>Prototype Phase 3 — JavaScript Assignment</p>
+  </header>
+  <main>
+    <p class="label">Game summary (will appear after you finish playing):</p>
+    <div id="gameOutput" class="results">No games played yet.</div>
+    <div id="detailedLog" style="margin-top:.75rem;font-size:.95rem;color:#102a43"></div>
+  </main>
+  <footer>
+    <small>Follow the prompts. Valid inputs: Bear, Ninja, Hunter (any case). Refresh page to start over if needed.</small>
+  </footer>
+
+  <script>
+    // ==========================
+    // Bear Ninja Hunter - CA8
+    // All variables declared and initialized at top
+    // Author meta tag above
+    // ==========================
+
+    // Immutable list of choices stored in an array (requirement)
+    const CHOICES = ["Bear", "Ninja", "Hunter"];
+
+    // Mutable variables used throughout game
+    let playerName = "";
+    let playerChoice = ""; // what player typed
+    let computerChoice = ""; // computed by random index
+    let winner = ""; // string describing winner
+    let playAgainAnswer = null; // captures yes/no/cancel
+    let plays = 0; // number of rounds played
+    let summaryLines = []; // store rounds for final output
+
+    // 1) Welcome the player and collect their name via prompt
+    playerName = prompt("Welcome to Bear Ninja Hunter! Please enter your name:");
+
+    // Handle Cancel on name prompt
+    if (playerName === null) {
+      alert("You cancelled the game. To play, please refresh and enter your name.");
+      // Show message on page
+      document.getElementById('gameOutput').innerText = "Game cancelled by user before starting.";
+    } else {
+      // Forced Case: trim and force to have first letter uppercase for greeting (use two different forced case techniques)
+      playerName = playerName.trim();
+      if (playerName.length === 0) {
+        alert("Invalid input: name cannot be empty. Refresh the page and enter a valid name (for example: Alex).");
+        document.getElementById('gameOutput').innerText = "Invalid name input provided. Refresh to restart.";
+      } else {
+        // Greet player using alert (one output method)
+        // Use concatenation to combine text and variable
+        alert("Hello " + playerName.charAt(0).toUpperCase() + playerName.slice(1) + ", welcome to Bear Ninja Hunter!");
+
+        // Use a loop to provide the option to play again. We'll use a do-while loop.
+        do {
+          // Prompt player for their choice. We may combine result display and play again prompt later.
+          playerChoice = prompt("Enter your choice (Bear, Ninja, or Hunter):\n(Exact words: Bear, Ninja, Hunter — case does not matter)");
+
+          // Handle Cancel on player's choice prompt
+          if (playerChoice === null) {
+            alert("You cancelled the play. If you want to play again refresh the page.");
+            // record that the player cancelled mid-game
+            summaryLines.push("Player cancelled during round " + (plays + 1) + ".");
+            break; // exit the play loop
+          }
+
+          // Forced Case: standardize player input to lowercase for comparison
+          playerChoice = playerChoice.trim();
+
+          if (playerChoice.length === 0) {
+            // Empty input handling
+            alert("Invalid input: you entered nothing. Please enter one of these words exactly: Bear, Ninja, Hunter.");
+            // As per spec, for incorrect data, page refresh is way to restart for now
+            document.getElementById('detailedLog').innerText = "Error: empty input received. Refresh page to restart.";
+            break;
+          }
+
+          // Normalize to have first-letter uppercase equivalent to array stored values
+          // We'll use toLowerCase() then capitalize to match CHOICES format
+          let normalized = playerChoice.toLowerCase();
+          playerChoice = normalized.charAt(0).toUpperCase() + normalized.slice(1);
+
+          // Validate player's choice against array using a loop (requirement: traverse the array)
+          let valid = false;
+          for (let i = 0; i < CHOICES.length; i++) {
+            if (CHOICES[i] === playerChoice) {
+              valid = true;
+              break;
+            }
+          }
+
+          if (!valid) {
+            // Invalid input handling
+            alert("Invalid input: '" + playerChoice + "'. Correct inputs are exactly: Bear, Ninja, Hunter (not case sensitive).\nRefresh page to try again.");
+            document.getElementById('detailedLog').innerText = "Invalid choice given: " + playerChoice + ". Refresh to restart.";
+            break;
+          }
+
+          // Computer selects random choice by index into the array using Math.random() and array.length
+          // Generate integer index between 0 and CHOICES.length - 1
+          let randIndex = Math.floor(Math.random() * CHOICES.length);
+
+          // Traverse the array to extract computer choice (requirement):
+          // We'll loop through and when index matches randIndex, set computerChoice
+          computerChoice = "";
+          for (let i = 0; i < CHOICES.length; i++) {
+            if (i === randIndex) {
+              computerChoice = CHOICES[i];
+              break;
+            }
+          }
+
+          // Determine the winner using same game rules as previous project.
+          // Rules (typical): Bear beats Ninja (bear eats ninja), Ninja beats Hunter (ninja ambushes hunter), Hunter beats Bear (hunter shoots bear).
+          // We'll use a switch on playerChoice (requirement to include switch)
+
+          switch (playerChoice) {
+            case "Bear":
+              if (computerChoice === "Bear") {
+                winner = "Tie";
+              } else if (computerChoice === "Ninja") {
+                winner = playerName + " wins! Bear eats Ninja.";
+              } else { // Hunter
+                winner = "Computer wins! Hunter beats Bear.";
+              }
+              break;
+
+            case "Ninja":
+              if (computerChoice === "Ninja") {
+                winner = "Tie";
+              } else if (computerChoice === "Hunter") {
+                winner = playerName + " wins! Ninja ambushes Hunter.";
+              } else { // Bear
+                winner = "Computer wins! Bear beats Ninja.";
+              }
+              break;
+
+            case "Hunter":
+              if (computerChoice === "Hunter") {
+                winner = "Tie";
+              } else if (computerChoice === "Bear") {
+                winner = playerName + " wins! Hunter outmaneuvers Bear.";
+              } else { // Ninja
+                winner = "Computer wins! Ninja beats Hunter.";
+              }
+              break;
+
+            default:
+              winner = "Error determining winner.";
+          }
+
+          // Count the play
+          plays = plays + 1;
+
+          // Build messages for player that combine text and the values of variables (concatenation)
+          let alertMessage = "Round " + plays + ": You chose " + playerChoice + ", Computer chose " + computerChoice + ". Result: " + winner;
+
+          // Output method 1: alert (concatenated string)
+          // Output method 2: innerHTML on page (concatenated string). Also output to console per requirement.
+
+          // Show results in an alert and ask if player wants to play again (we may combine result display and play again prompt)
+          playAgainAnswer = prompt(alertMessage + "\n\nDo you want to play again? Enter Yes or No.");
+
+          // Log to console (must display winner in console per requirements)
+          console.log("Round " + plays + " - Player: " + playerChoice + ", Computer: " + computerChoice + ", Result: " + winner);
+
+          // Save line for final summary and display the most recent in the HTML detailed log
+          summaryLines.push("Round " + plays + ": Player(" + playerChoice + ") vs Computer(" + computerChoice + ") -> " + winner);
+          document.getElementById('detailedLog').innerText = summaryLines.join('\n');
+
+          // Interpret playAgainAnswer
+          if (playAgainAnswer === null) {
+            // Player hit cancel on the play again prompt
+            alert("You cancelled the 'play again' prompt. The game will end now.");
+            break; // exit loop
+          }
+
+          // Force case on playAgainAnswer for robust checking
+          playAgainAnswer = playAgainAnswer.trim().toLowerCase();
+
+          // Accept only "yes" or "no". If invalid, alert and end (as specified, page refresh to restart for now)
+          if (playAgainAnswer !== "yes" && playAgainAnswer !== "no") {
+            alert("Invalid input for play again: '" + playAgainAnswer + "'. Correct inputs: Yes or No (not case sensitive). Refresh to restart.");
+            break; // stop loop
+          }
+
+        } while (playAgainAnswer === "yes");
+
+        // After play loop ends, show summary to HTML page and final prompt as specified.
+        // Compose final personalized message using concatenation and two different output methods
+        let finalMessage = "Thanks for playing, " + (playerName.charAt(0).toUpperCase() + playerName.slice(1)) + ". You played " + plays + " round(s).";
+
+        // Output 1 to HTML page (innerText)
+        document.getElementById('gameOutput').innerText = finalMessage;
+
+        // Output 2 to console (console.log) — winner(s) were already logged, but we also log summary
+        console.log(finalMessage);
+
+        // Also append the summary lines to the HTML page using innerHTML to show line breaks (second HTML output method)
+        if (summaryLines.length > 0) {
+          document.getElementById('gameOutput').innerHTML += '<br><br><strong>Game Results:</strong><br>' + summaryLines.join('<br>');
+        }
+
+      }
+    }
+
+    // End of script — no user-defined functions used per assignment rules.
+  </script>
+</body>
+</html>
